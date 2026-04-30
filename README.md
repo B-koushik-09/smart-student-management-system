@@ -10,31 +10,31 @@ A high-performance, production-grade MERN stack application designed for modern 
 
 ---
 
-## ✨ High-Impact Features
+##  High-Impact Features
 
-### 🔐 Secure Authentication
+###  Secure Authentication
 - **Role-Based Access Control (RBAC)**: Distinct permissions for Admins and Students.
 - **JWT & Bcrypt**: Industry-standard security for session management and password hashing.
 - **Protected Routes**: Granular frontend and backend route guards.
 
-### 📊 Advanced Analytics & Dashboard
+###  Advanced Analytics & Dashboard
 - **Interactive Data Viz**: Real-time stats visualized through Recharts (Bar & Pie).
 - **Recent Activity**: Instant overview of the latest student registrations.
 - **Metric Cards**: High-level summaries for total students, CGPA averages, and more.
 
-### 📝 Comprehensive Student CRUD
+###  Comprehensive Student CRUD
 - **Smart Search**: Debounced global search across Name, Roll Number, and Email.
 - **Multi-Filter System**: Refine results by Department, Year, or Enrollment Status.
 - **Pagination**: Optimized for large datasets to ensure smooth performance.
 
-### 🛠️ Professional Admin Tools
-- **📜 Activity Logs**: Full audit trail for every record creation, update, deletion, and export.
-- **📥 CSV Export**: One-click data export functionality for external reporting.
+###  Professional Admin Tools
+- **  Activity Logs**: Full audit trail for every record creation, update, deletion, and export.
+- **  CSV Export**: One-click data export functionality for external reporting.
 - **Dummy Data Seeding**: Pre-built script to populate the system for instant testing.
 
 ---
 
-## 🎨 Design Aesthetic
+##  Design Aesthetic
 - **Modern UI**: Clean, professional layout with curated HSL color palettes.
 - **Glassmorphism**: Subtle blur effects and semi-transparent layers for a premium feel.
 - **Micro-Animations**: Smooth transitions powered by Framer Motion.
@@ -43,7 +43,7 @@ A high-performance, production-grade MERN stack application designed for modern 
 
 ---
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```bash
 nsf-apply/
@@ -65,7 +65,7 @@ nsf-apply/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
@@ -113,7 +113,7 @@ npm run dev
 
 ---
 
-## 📡 API Reference
+##  API Reference
 
 ### User Authentication
 | Endpoint | Method | Access |
@@ -134,7 +134,7 @@ npm run dev
 
 ---
 
-## 📝 Credentials for Testing
+##  Credentials for Testing
 If you ran the seeding script, you can log in with:
 - **Email**: `admin@smartsms.com`
 - **Password**: `password123`
@@ -142,9 +142,8 @@ If you ran the seeding script, you can log in with:
 
 ---
 
-## 📜 License
+##  License
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-**Developed with ❤️ for Portfolio Excellence**
