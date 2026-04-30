@@ -8,7 +8,9 @@ const {
   updateStudent,
   deleteStudent,
   getDashboardStats,
-  exportStudentsCSV
+  exportStudentsCSV,
+  approveStudent,
+  rejectStudent
 } = require('../controllers/studentController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -40,6 +42,10 @@ router.get('/export/csv', authorize('admin'), exportStudentsCSV);
 router.route('/')
   .get(getStudents)
   .post(authorize('admin'), studentValidation, createStudent);
+
+// Approval routes
+router.put('/approve/:id', authorize('admin'), approveStudent);
+router.put('/reject/:id', authorize('admin'), rejectStudent);
 
 router.route('/:id')
   .get(getStudent)

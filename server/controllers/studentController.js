@@ -389,3 +389,60 @@ exports.exportStudentsCSV = async (req, res) => {
     });
   }
 };
+
+// @desc    Approve a pending student
+// @route   PUT /api/students/approve/:id
+// @access  Private (Admin)
+exports.approveStudent = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    student.status = 'active';
+    await student.save();
+
+    await logActivity({
+      userId: req.user.id,
+      action: 'update',
+      entity: 'student',
+      entityId: student._id,
+      details: `Approved student account for "${student.name}"`,
+      ipAddress: req.ip
+    });
+
+    res.status(200).json({ success: true, message: 'Student approved successfully', student });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error approving student' });
+  }
+};
+
+// @desc    Reject a pending student
+// @route   PUT /api/students/reject/:id
+// @access  Private (Admin)
+exports.rejectStudent = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    student.status = 'rejected';
+    await student.save();
+
+    await logActivity({
+      userId: req.user.id,
+      action: 'update',
+      entity: 'student',
+      entityId: student._id,
+      details: `Rejected student account for "${student.name}"`,
+      ipAddress: req.ip
+    });
+
+    res.status(200).json({ success: true, message: 'Student rejected successfully', student });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error rejecting student' });
+  }
+};
+

@@ -10,14 +10,14 @@ const studentSchema = new mongoose.Schema({
   },
   rollNumber: {
     type: String,
-    required: [true, 'Roll number is required'],
+    required: [function() { return this.status !== 'pending'; }, 'Roll number is required'],
     unique: true,
     trim: true,
     uppercase: true
   },
   department: {
     type: String,
-    required: [true, 'Department is required'],
+    required: [function() { return this.status !== 'pending'; }, 'Department is required'],
     enum: {
       values: [
         'Computer Science',
@@ -42,7 +42,7 @@ const studentSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Phone number is required'],
+    required: [function() { return this.status !== 'pending'; }, 'Phone number is required'],
     match: [/^[0-9]{10}$/, 'Please provide a valid 10-digit phone number']
   },
   year: {
@@ -58,13 +58,17 @@ const studentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'inactive', 'graduated'],
-    default: 'active'
+    enum: ['pending', 'active', 'rejected', 'inactive', 'graduated'],
+    default: 'pending'
   },
   address: {
     type: String,
     trim: true,
     default: ''
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

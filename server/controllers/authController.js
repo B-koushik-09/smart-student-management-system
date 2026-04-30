@@ -29,6 +29,20 @@ exports.register = async (req, res) => {
     // Security: Always force 'student' role on public registration.
     // Admin accounts can only be created via the database seed script.
     const user = await User.create({ name, email, password, role: 'student' });
+    
+    // Auto-create linked Student record with pending status
+    const Student = require('../models/Student');
+    await Student.create({
+      name: user.name,
+      email: user.email,
+      user: user._id,
+      status: 'pending',
+      // Dummy data to pass validation, admin will update these upon approval
+      rollNumber: `PENDING-${user._id.toString().slice(-6).toUpperCase()}`,
+      department: 'Computer Science', // default
+      phone: '0000000000'
+    });
+
     const token = user.generateToken();
 
     // Log activity
@@ -48,7 +62,8 @@ exports.register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        status: 'pending' // newly registered is always pending
       }
     });
   } catch (error) {
@@ -102,6 +117,16 @@ exports.login = async (req, res) => {
       ipAddress: req.ip
     });
 
+    // Fetch student status if user is a student
+    let status = 'active'; // Admins default to active
+    if (user.role === 'student') {
+      const Student = require('../models/Student');
+      const studentRecord = await Student.findOne({ user: user._id });
+      if (studentRecord) {
+        status = studentRecord.status;
+      }
+    }
+
     res.status(200).json({
       success: true,
       token,
@@ -109,7 +134,8 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        status
       }
     });
   } catch (error) {
@@ -126,6 +152,16 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    // Fetch student status if user is a student
+    let status = 'active'; // Admins default to active
+    if (user.role === 'student') {
+      const Student = require('../models/Student');
+      const studentRecord = await Student.findOne({ user: user._id });
+      if (studentRecord) {
+        status = studentRecord.status;
+      }
+    }
+
     res.status(200).json({
       success: true,
       user: {
@@ -133,6 +169,7 @@ exports.getMe = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        status,
         createdAt: user.createdAt
       }
     });

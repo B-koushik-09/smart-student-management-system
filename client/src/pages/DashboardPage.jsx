@@ -22,21 +22,56 @@ const cardVariants = {
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
+  const [pendingStudents, setPendingStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await API.get('/students/stats/dashboard');
-        setStats(res.data.stats);
-      } catch (err) {
-        toast.error('Failed to load dashboard statistics');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchStats();
-  }, []);
+    if (user?.role === 'admin') {
+      fetchPendingStudents();
+    }
+  }, [user]);
+
+  const fetchStats = async () => {
+    try {
+      const res = await API.get('/students/stats/dashboard');
+      setStats(res.data.stats);
+    } catch (err) {
+      toast.error('Failed to fetch dashboard statistics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPendingStudents = async () => {
+    try {
+      const res = await API.get('/students?status=pending');
+      setPendingStudents(res.data.students);
+    } catch (err) {
+      toast.error('Failed to fetch pending students');
+    }
+  };
+
+  const handleApprove = async (id) => {
+    try {
+      await API.put(`/students/approve/${id}`);
+      toast.success('Student approved successfully');
+      fetchPendingStudents();
+      fetchStats();
+    } catch (err) {
+      toast.error('Failed to approve student');
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await API.put(`/students/reject/${id}`);
+      toast.success('Student rejected successfully');
+      fetchPendingStudents();
+    } catch (err) {
+      toast.error('Failed to reject student');
+    }
+  };
 
   if (loading) {
     return (
@@ -110,6 +145,48 @@ export default function DashboardPage() {
           </motion.div>
         ))}
       </div>
+
+      {/* Admin: Pending Students */}
+      {user?.role === 'admin' && pendingStudents.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="glass-card p-6 mb-8 border border-yellow-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-yellow-500 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+              Pending Approvals ({pendingStudents.length})
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/5">
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Name</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Email</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium hidden sm:table-cell">Department</th>
+                  <th className="text-right py-3 px-4 text-text-secondary font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingStudents.map((s) => (
+                  <tr key={s._id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
+                    <td className="py-3 px-4 text-text-primary font-medium">{s.name}</td>
+                    <td className="py-3 px-4 text-text-secondary">{s.email}</td>
+                    <td className="py-3 px-4 text-text-secondary hidden sm:table-cell">{s.department}</td>
+                    <td className="py-3 px-4 text-right">
+                      <button onClick={() => handleApprove(s._id)} className="bg-green-500/20 text-green-400 hover:bg-green-500/30 px-3 py-1 rounded text-xs font-medium mr-2 transition-colors">Approve</button>
+                      <button onClick={() => handleReject(s._id)} className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-3 py-1 rounded text-xs font-medium transition-colors">Reject</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
