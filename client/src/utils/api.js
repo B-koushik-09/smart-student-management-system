@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_URL;
+let baseURL = import.meta.env.VITE_API_URL || '';
+// Remove trailing slash if present to avoid double slashes like //api
+if (baseURL.endsWith('/')) {
+  baseURL = baseURL.slice(0, -1);
+}
 
 const API = axios.create({
   baseURL: `${baseURL}/api`,
