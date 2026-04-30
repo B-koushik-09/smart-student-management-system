@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { HiOutlineMail, HiOutlineLockClosed, HiOutlineUser, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'student' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
@@ -21,7 +21,7 @@ export default function RegisterPage() {
     if (form.password !== form.confirmPassword) return toast.error('Passwords do not match');
     setIsLoading(true);
     try {
-      await register(form.name, form.email, form.password, form.role);
+      await register(form.name, form.email, form.password);
       toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (err) {
@@ -63,14 +63,6 @@ export default function RegisterPage() {
               <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary w-5 h-5" />
               <input type="email" name="email" value={form.email} onChange={handleChange} className="input-field pl-12" placeholder="you@example.com" id="register-email" />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">Role</label>
-            <select name="role" value={form.role} onChange={handleChange} className="input-field" id="register-role">
-              <option value="student">Student</option>
-              <option value="admin">Admin</option>
-            </select>
           </div>
 
           <div>

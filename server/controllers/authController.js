@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -26,7 +26,9 @@ exports.register = async (req, res) => {
       });
     }
 
-    const user = await User.create({ name, email, password, role: role || 'student' });
+    // Security: Always force 'student' role on public registration.
+    // Admin accounts can only be created via the database seed script.
+    const user = await User.create({ name, email, password, role: 'student' });
     const token = user.generateToken();
 
     // Log activity
@@ -50,7 +52,6 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Register error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error during registration'
@@ -112,7 +113,6 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error during login'
@@ -157,6 +157,7 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
+    // Security: Only allow name and email updates. Explicitly ignore role.
     const { name, email } = req.body;
     const updateData = {};
 
@@ -200,10 +201,61 @@ exports.updateProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Update profile error:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating profile'
+    });
+  }
+};
+
+// @desc    Promote a user to admin
+// @route   PUT /api/auth/make-admin/:id
+// @access  Private/Admin only
+exports.promoteToAdmin = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already an admin'
+      });
+    }
+
+    user.role = 'admin';
+    await user.save();
+
+    // Log activity
+    await logActivity({
+      userId: req.user.id,
+      action: 'update',
+      entity: 'user',
+      entityId: user._id,
+      details: `"${req.user.name}" promoted "${user.name}" to admin`,
+      ipAddress: req.ip
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `${user.name} has been promoted to admin`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error promoting user'
     });
   }
 };

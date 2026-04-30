@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { register, login, getMe, updateProfile } = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
+const { register, login, getMe, updateProfile, promoteToAdmin } = require('../controllers/authController');
+const { protect, authorize } = require('../middleware/auth');
 
 // Validation rules
 const registerValidation = [
@@ -25,5 +25,6 @@ router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, profileValidation, updateProfile);
+router.put('/make-admin/:id', protect, authorize('admin'), promoteToAdmin);
 
 module.exports = router;
